@@ -108,6 +108,12 @@ During execution:
 - The V channel and material mask windows are displayed
 - The system computes total material percentage and subtracted (stuck) material
 - **HOPPER EMPTY** is triggered once the effective material falls below the configured threshold for the defined time window
+
+(**IMP**) - If you wish to run only the white pixels percentage count logic without the stuck blobs being subtracted, then run:
+```bash
+python src/video_player.py
+```
+For the detailed understanding of past iterations, it is better to go through the project details in **[Approach Evolution](docs/approach_evolution.md)**
 ### 6. Integration with PLC for production deployment
 In production:
 - The HOPPER EMPTY condition is intended to trigger a PLC command to open the mixer gate
@@ -123,6 +129,16 @@ The system has been validated across multiple batches and camera framing variati
 ## Future Work
 Extension to Hopper bridging detection wherein if the main material (biggest connected component) does not move with time while Noodler (the equipment that the hopper emties into) is running, then a case of bridging will be identified and notified to the user.
 
+---
+
+## Author
+
+**Aman Sarin**  
+Assistant Manager – Supply Chain (Industrial Digital Transformation)  
+Electronics & Instrumentation Engineer, NIT Rourkela  
+
+GitHub: https://github.com/Aman-Sarin  
+Interests: Computer Vision, Industrial Automation
 
 
 
