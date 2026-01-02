@@ -17,11 +17,13 @@ Therefore, a computer vision based system was evaluated. The footage from an exi
 The first design decision was to restrict all image processing to a well-defined Region of Interest (ROI) corresponding to the hopper interior.
 
 Key considerations:
-- Background regions (structures, pipes, floor) introduce noise and variability
+- Larger background introduces more noise and variability
+- Dont need to see the entire hopper in frame as aim is not continuous level detection but low level identification
 - The hopper geometry is fixed, making a static ROI viable
-- A polygonal ROI provides better alignment than a rectangular crop
 
 A manual ROI selection tool was implemented to allow accurate polygon selection during setup. All subsequent image processing is performed only within this ROI, ensuring consistency across different lighting conditions and camera framing.
+
+![ROI selection](images/Roi_selection.png)
 
 
 ## 3. Color Space Analysis (HSV / V Channel)
