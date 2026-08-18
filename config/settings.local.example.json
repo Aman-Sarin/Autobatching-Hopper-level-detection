@@ -1,0 +1,12 @@
+{
+    "_instructions": {
+        "camera_url": "Enter the complete camera RTSP URL, including the camera username, password, IP address, port, and stream path.",
+        "plc_ip": "Enter the IP address of the Logix-compatible PLC.",
+        "gate_closed_tag": "Enter the mixer-gate CLOSED feedback tag: 1 must mean CLOSED and 0 must mean OPEN.",
+        "camera_trigger_tag": "Enter the PLC Boolean request tag that Python is permitted to switch ON and OFF."
+    },
+    "camera_url": "rtsp://PLEASE_ENTER_CAMERA_USERNAME:PLEASE_ENTER_CAMERA_PASSWORD@PLEASE_ENTER_CAMERA_IP_ADDRESS:554/Streaming/Channels/101",
+    "plc_ip": "PLEASE_ENTER_PLC_IP_ADDRESS",
+    "gate_closed_tag": "PLEASE_ENTER_MIXER_GATE_CLOSED_FEEDBACK_TAG",
+    "camera_trigger_tag": "PLEASE_ENTER_PYTHON_TO_PLC_TRIGGER_TAG"
+}

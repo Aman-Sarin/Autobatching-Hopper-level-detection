@@ -1,0 +1,7 @@
+{
+    "morning_threshold": 92,
+    "afternoon_threshold": 98,
+    "night_threshold": 90,
+    "primary_empty_percentage": 18.0,
+    "secondary_empty_percentage": 60.0
+}

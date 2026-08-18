@@ -2,75 +2,241 @@ import cv2
 import json
 import os
 import numpy as np
+import settings
 
-ROI_POINTS = []
-ROI_FINALIZED = False
+# ---------------- CONFIG ----------------
+ROI_SAVE_PATH = settings.ROI_FILE
 
-def mouse_callback(event, x, y, flags, param):
-    global ROI_POINTS, ROI_FINALIZED
+# -------- Dashboard Control --------
+running = False
 
-    # Left click → add vertex
-    if event == cv2.EVENT_LBUTTONDOWN and not ROI_FINALIZED:
-        ROI_POINTS.append((x, y))
+# ---------------- GLOBAL STATE ----------------
+primary_points = []
+secondary_points = []
 
-    # Right click → finalize ROI and save
-    elif event == cv2.EVENT_RBUTTONDOWN and not ROI_FINALIZED:
-        if len(ROI_POINTS) < 3:
-            return  # silently ignore
-        ROI_FINALIZED = True
-        save_roi()
+primary_started = False
+secondary_started = False
 
-def save_roi():
-    os.makedirs("../config", exist_ok=True)
-    with open("../config/roi.json", "w") as f:
-        json.dump({"hopper_roi": ROI_POINTS}, f, indent=4)
-    print("ROI saved")
 
+# -------------------------------------------------
+# Load existing ROI (if present)
+# -------------------------------------------------
+def load_existing_rois():
+    global primary_points, secondary_points
+
+    if not os.path.exists(ROI_SAVE_PATH):
+        print("No existing ROI file found.")
+        return
+
+    try:
+        with open(ROI_SAVE_PATH, "r") as f:
+            data = json.load(f)
+
+        primary_points = data.get("primary_roi", [])
+        secondary_points = data.get("secondary_roi", [])
+
+        print("Existing ROI loaded.")
+
+    except Exception as e:
+        print("Could not load ROI:", e)
+
+
+# -------------------------------------------------
+# Save ROI
+# -------------------------------------------------
+def save_rois():
+
+    os.makedirs(os.path.dirname(ROI_SAVE_PATH), exist_ok=True)
+
+    with open(ROI_SAVE_PATH, "w") as f:
+        json.dump(
+            {
+                "primary_roi": primary_points,
+                "secondary_roi": secondary_points,
+            },
+            f,
+            indent=4,
+        )
+
+    print("ROI.json updated successfully.")
+
+
+# -------------------------------------------------
+# Primary Mouse Callback
+# -------------------------------------------------
+def primary_callback(event, x, y, flags, param):
+
+    global primary_points
+    global primary_started
+
+    if event == cv2.EVENT_LBUTTONDOWN:
+
+        # First click = overwrite existing ROI
+        if not primary_started:
+            primary_points = []
+            primary_started = True
+            print("\nStarted drawing PRIMARY ROI")
+
+        primary_points.append([x, y])
+
+    elif event == cv2.EVENT_RBUTTONDOWN:
+
+        if primary_started and len(primary_points) >= 3:
+
+            save_rois()
+
+            primary_started = False
+
+            print("PRIMARY ROI saved.\n")
+
+
+# -------------------------------------------------
+# Secondary Mouse Callback
+# -------------------------------------------------
+def secondary_callback(event, x, y, flags, param):
+
+    global secondary_points
+    global secondary_started
+
+    if event == cv2.EVENT_LBUTTONDOWN:
+
+        if not secondary_started:
+            secondary_points = []
+            secondary_started = True
+            print("\nStarted drawing SECONDARY ROI")
+
+        secondary_points.append([x, y])
+
+    elif event == cv2.EVENT_RBUTTONDOWN:
+
+        if secondary_started and len(secondary_points) >= 3:
+
+            save_rois()
+
+            secondary_started = False
+
+            print("SECONDARY ROI saved.\n")
+
+
+# -------------------------------------------------
+# Draw ROI while drawing only
+# -------------------------------------------------
+def draw_points(frame, points, drawing):
+
+    if not drawing:
+        return
+
+    for pt in points:
+        cv2.circle(frame, tuple(pt), 4, (0, 255, 0), -1)
+
+    if len(points) >= 2:
+        cv2.polylines(
+            frame,
+            [np.array(points, dtype=np.int32)],
+            False,
+            (0, 255, 0),
+            2,
+        )
+
+
+# -------------------------------------------------
+# MAIN
+# -------------------------------------------------
 def main():
-    global ROI_POINTS, ROI_FINALIZED
 
-    video_path = "../data/mixer 01 131125/sample video 2.mp4"
+    global running
 
-    cap = cv2.VideoCapture(video_path)
+    settings.reload()
+    settings.require_connection_settings("CAMERA_URL")
+    running = True
+
+    load_existing_rois()
+
+    # Enter the complete private camera RTSP URL in
+    # config/settings.local.json; do not hardcode it in this file.
+    cap = cv2.VideoCapture(settings.CAMERA_URL, cv2.CAP_FFMPEG)
+
     if not cap.isOpened():
-        print("Video not found")
+        print("Cannot connect to RTSP stream.")
         return
 
-    ret, frame = cap.read()
-    cap.release()
-    if not ret:
-        print("Could not read video")
-        return
+    cv2.namedWindow("Select Primary ROI (Hopper)", cv2.WINDOW_NORMAL)
+    cv2.namedWindow("Select Secondary ROI (Flow Zone)", cv2.WINDOW_NORMAL)
 
-    cv2.namedWindow("Select Hopper ROI", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("Select Hopper ROI", 900, 600)
-    cv2.setMouseCallback("Select Hopper ROI", mouse_callback)
+    cv2.resizeWindow("Select Primary ROI (Hopper)", 900, 600)
+    cv2.resizeWindow("Select Secondary ROI (Flow Zone)", 900, 600)
 
-    while True:
-        display = frame.copy()
-        # Draw selected ROI points (green dots)
-        for pt in ROI_POINTS:
-            cv2.circle(display, pt, 4, (0, 255, 0), -1)
-        # If ROI finalized → darken outside
-        if ROI_FINALIZED:
-            mask = np.zeros(frame.shape[:2], dtype=np.uint8)
-            cv2.fillPoly(mask, [np.array(ROI_POINTS, dtype=np.int32)], 255)
-            display[mask == 0] = (display[mask == 0] * 0.3).astype(np.uint8)
+    cv2.setMouseCallback(
+        "Select Primary ROI (Hopper)",
+        primary_callback,
+    )
 
-        cv2.imshow("Select Hopper ROI", display)
+    cv2.setMouseCallback(
+        "Select Secondary ROI (Flow Zone)",
+        secondary_callback,
+    )
+
+    print("\n===================================")
+    print("ROI SELECTOR")
+    print("===================================")
+    print("Left Click  : Add vertex")
+    print("Right Click : Save ROI")
+    print("ESC         : Exit")
+    print("===================================\n")
+
+    while running:
+
+        ret, frame = cap.read()
+
+        # Sometimes RTSP skips one frame
+        if not ret:
+            continue
+
+        primary_display = frame.copy()
+        secondary_display = frame.copy()
+
+        draw_points(
+            primary_display,
+            primary_points,
+            primary_started,
+        )
+
+        draw_points(
+            secondary_display,
+            secondary_points,
+            secondary_started,
+        )
+
+        cv2.imshow(
+            "Select Primary ROI (Hopper)",
+            primary_display,
+        )
+
+        cv2.imshow(
+            "Select Secondary ROI (Flow Zone)",
+            secondary_display,
+        )
+
+        cv2.moveWindow(
+            "Select Primary ROI (Hopper)",
+            50,
+            80
+        )
+
+        cv2.moveWindow(
+            "Select Secondary ROI (Flow Zone)",
+            900,
+            80
+        )
+
         key = cv2.waitKey(1) & 0xFF
 
-        # Reset
-        if key == ord('r'):
-            ROI_POINTS = []
-            ROI_FINALIZED = False
-            print("ROI reset")
-
-        elif key == 27:
+        if key == 27:
             break
 
+    cap.release()
     cv2.destroyAllWindows()
+
 
 if __name__ == "__main__":
     main()
-

@@ -1,10 +1,19 @@
 import cv2
 import json
 import numpy as np
+from pathlib import Path
 
-def load_roi(path="../config/roi.json"):
-    with open(path, "r") as f:
-        return np.array(json.load(f)["hopper_roi"], dtype=np.int32)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+
+def load_roi(path=None):
+    roi_path = Path(path) if path is not None else PROJECT_ROOT / "config" / "roi.json"
+    with roi_path.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+    points = data.get("hopper_roi", data.get("primary_roi"))
+    if points is None:
+        raise KeyError("ROI file must contain 'hopper_roi' or 'primary_roi'")
+    return np.array(points, dtype=np.int32)
 
 def apply_roi_mask(frame, roi_points):
     mask = np.zeros(frame.shape[:2], dtype=np.uint8)
@@ -13,7 +22,7 @@ def apply_roi_mask(frame, roi_points):
     return roi, mask
 
 def main():
-    video_path = "../data/mixer 01 131125/sample video 1.mp4"
+    video_path = PROJECT_ROOT / "data" / "mixer 01 131125" / "Sample Video 1.mp4"
 
     roi_points = load_roi()
     cap = cv2.VideoCapture(video_path)

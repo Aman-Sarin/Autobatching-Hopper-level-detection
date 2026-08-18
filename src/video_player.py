@@ -1,5 +1,6 @@
 import cv2
 import time
+from pathlib import Path
 from utils import (
     load_roi,
     apply_roi_mask,
@@ -9,7 +10,12 @@ from utils import (
     white_pixel_percentage
 )
 
-VIDEO_PATH = "../data/mixer 01 131125/Sample Video 2.mp4"
+VIDEO_PATH = (
+    Path(__file__).resolve().parent.parent
+    / "data"
+    / "mixer 01 131125"
+    / "Sample Video 2.mp4"
+)
 
 # ---- PARAMETERS (tunable) ----
 THRESHOLD_VALUE = 100

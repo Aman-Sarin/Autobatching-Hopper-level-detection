@@ -1,7 +1,8 @@
 import cv2
 import time
 import numpy as np
-from utils import (
+from pathlib import Path
+from utils_old import (
     load_roi,
     apply_roi_mask,
     extract_v_channel,
@@ -9,15 +10,20 @@ from utils import (
     clean_mask
 )
 
-VIDEO_PATH = "../data/mixer 01 131125/Sample Video 4.mp4"
+VIDEO_PATH = (
+    Path(__file__).resolve().parent.parent
+    / "data"
+    / "mixer 01 131125"
+    / "Sample Video 5.mp4"
+)
 
-# ---- PARAMETERS ----
+# PARAMETERS
 THRESHOLD_VALUE = 100
 
 EMPTY_PERCENTAGE = 28.0
 TIME_CONFIRM_SECONDS = 10
 
-# ---- PERSISTENCE PARAMETERS (NO NOODLER) ----
+# PERSISTENCE PARAMETERS
 PERSISTENCE_TIME_SECONDS = 10    # how long detached pixels must persist
 MIN_STUCK_AREA = 30             # ignore tiny regions
 
@@ -75,11 +81,11 @@ def main():
         # Detached = material minus main bulk
         detached_mask = cv2.subtract(material_mask, main_mask)
 
-        # ---- UPDATE PERSISTENCE (DETACHED ONLY) ----
+        # UPDATE PERSISTENCE (DETACHED ONLY)
         persistence_map[detached_mask == 255] += 1
         persistence_map[detached_mask == 0] = 0
 
-        # ---- STUCK MASK ----
+        # STUCK MASK
         stuck_mask = np.zeros_like(material_mask, dtype=np.uint8)
         stuck_mask[persistence_map >= PERSISTENCE_THRESHOLD] = 255
 
@@ -95,7 +101,7 @@ def main():
 
         stuck_mask = cleaned_stuck
 
-        # ---- METRICS ----
+        # METRICS
         total_white = cv2.countNonZero(material_mask)
         stuck_white = cv2.countNonZero(stuck_mask)
         roi_area = cv2.countNonZero(roi_mask)
@@ -103,7 +109,7 @@ def main():
         effective_white = max(total_white - stuck_white, 0)
         percentage = (effective_white / roi_area) * 100 if roi_area > 0 else 0
 
-        # ---- OVERLAY ----
+        # OVERLAY
         overlay = cv2.cvtColor(material_mask, cv2.COLOR_GRAY2BGR)
 
         # Draw stuck material (blue outline)
@@ -136,7 +142,7 @@ def main():
         )
         y += dy
 
-        # ---- EMPTY LOGIC ----
+        # EMPTY LOGIC
         if percentage < EMPTY_PERCENTAGE:
             if empty_start_time is None:
                 empty_start_time = time.time()
@@ -155,7 +161,7 @@ def main():
                 1.4, (0, 0, 255), 3
             )
 
-        # ---- DISPLAY ----
+        # DISPLAY
         cv2.imshow("V Channel", v_channel)
         cv2.imshow("Material Mask", overlay)
 

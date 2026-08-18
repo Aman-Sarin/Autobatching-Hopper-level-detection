@@ -39,3 +39,4 @@ data/
 # Config secrets (if any later)
 # ------------------------------
 *.env
+config/settings.local.json
