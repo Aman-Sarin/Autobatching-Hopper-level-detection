@@ -200,6 +200,16 @@ python src\video_player_3.py
 The integrated application can write to the configured PLC trigger tag. Only
 run it when the connection file has been reviewed for the intended equipment.
 
+Original percentage-only development baseline:
+
+```powershell
+python src\video_player.py
+```
+
+This earlier script measures the primary ROI without persistence-based
+stuck-material subtraction. For the reasoning behind this and later iterations,
+see [Approach Evolution](docs/approach_evolution.md).
+
 ## Run offline smoke tests
 
 The smoke tests validate configuration paths, ROI loading, mask processing,
@@ -246,3 +256,12 @@ and the logic behind state machine—see [Approach Evolution](docs/approach_evol
   enabling automatic production operation.
 - Never publish camera credentials, plant network addresses, or operational PLC
   tag names.
+
+## Author
+
+**Aman Sarin**<br>
+Assistant Manager – Supply Chain (Industrial Digital Transformation)<br>
+Electronics & Instrumentation Engineer, NIT Rourkela<br>
+
+GitHub: [Aman-Sarin](https://github.com/Aman-Sarin)<br>
+Interests: Computer Vision, Industrial Automation
