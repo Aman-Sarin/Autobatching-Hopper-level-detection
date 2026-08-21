@@ -83,7 +83,7 @@ above the empty threshold for too long. The intended automatic batch drop would
 then be delayed, recreating one of the problems the system was designed to
 remove.
 
-![Residual material on hopper walls](images/Residual_material.png)
+![Residual material on hopper walls](images/Residual_material%20new.png)
 
 
 ## 5. Persistence-Based Subtraction of Detached Material
@@ -118,9 +118,7 @@ This method is more stable because it asks whether material remains in the same
 image locations, rather than attempting to maintain a fragile identity for each
 changing blob.
 
-![Blob-identification experiment](images/Finding_blobs.jpeg)
-
-![Persistence-based stuck-material mask](images/Persistence_mask.png)
+![Persistence-based stuck-material mask](images/Persistence_mask%20new.png)
 
 
 ## 6. ROI Selector and the Role of the Secondary ROI
@@ -138,10 +136,6 @@ In each window, left-click adds polygon points and right-click saves the ROI.
 Both polygons are written to `config/roi.json`. Existing coordinates are loaded
 when the selector starts, and the running detector reloads the file
 automatically if it is changed.
-
-<img src="images/ROI_selection.png" alt="Primary ROI selection" width="550">
-
-<img src="images/ROI_masking.png" alt="Primary ROI mask" width="550">
 
 ### Why the secondary ROI was required
 
@@ -171,9 +165,6 @@ The two empty detectors are combined with an OR condition:
 
 If both detectors are active, the recorded trigger cause is `BOTH`; otherwise it
 is recorded as `PRIMARY` or `SECONDARY`.
-
-![Secondary ROI and Noodler status](images/Noodler_status_added.png)
-
 
 ## 7. State Logic
 
@@ -341,4 +332,4 @@ material behaviour, lighting periods, and camera conditions. The final code is
 running successfully in the factory as a closed-loop hopper-empty and automatic
 batch-drop solution.
 
-![Final running material detection](images/Successful_implementation.png)
+![Autobatching operator dashboard](images/Autobatching_screensaver.png)
