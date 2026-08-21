@@ -149,11 +149,11 @@ Primary-ROI persistence can subtract material only after it becomes visually
 detached from the largest material component. A production edge case showed why
 that was not always sufficient.
 
-In `data/mixer 01 131125/Sample Video 6_demo.mp4`, material remains near the
-mouth of the hopper while still appearing connected to the main mass in the
-camera image. Because it is not a separate component, the primary persistence
-logic cannot classify and subtract it as detached material, even when the mouth
-has become sufficiently clear for the process to continue.
+In this edge case, material remains near the mouth of the hopper while still
+appearing connected to the main mass in the camera image. Because it is not a
+separate component, the primary persistence logic cannot classify and subtract
+it as detached material, even when the mouth has become sufficiently clear for
+the process to continue.
 
 The secondary ROI solves this by looking only at the discharge mouth. It does
 not apply the primary stuck-material subtraction. Instead, it independently

@@ -24,9 +24,6 @@ enabling autonomous functioning and removing manual dependency. It helps in
 preventing premature batch dumping, which contributes to abnormalities like
 hopper bridging, as well as batch delays leading to speed loss on packing lines.
 
-<!-- Final dashboard demonstration video: Dashboard Video 1.mp4. Replace this
-comment with its GitHub Release link during final publication. -->
-
 ## Python technologies used
 
 - **Python 3.10.11:** coordinates the computer-vision, control, configuration,
